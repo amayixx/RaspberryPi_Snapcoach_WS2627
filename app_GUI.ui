@@ -187,7 +187,7 @@ QTableWidget::item:selected {
         <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
        <attribute name="title">
-        <string>Steuerung</string>
+        <string>Control</string>
        </attribute>
        <widget class="QFrame" name="frame">
         <property name="geometry">
@@ -222,7 +222,7 @@ QTableWidget::item:selected {
           </font>
          </property>
          <property name="text">
-          <string>Visuell</string>
+          <string>Visual</string>
          </property>
          <property name="iconSize">
           <size>
@@ -246,7 +246,7 @@ QTableWidget::item:selected {
           </font>
          </property>
          <property name="text">
-          <string>Akustisch</string>
+          <string>Acoustic</string>
          </property>
          <property name="iconSize">
           <size>
@@ -317,7 +317,7 @@ QTableWidget::item:selected {
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <property name="text">
-          <string>Wählen Sie die Dauer (s):</string>
+          <string>Select Duration (s):</string>
          </property>
         </widget>
         <widget class="QLabel" name="frequenz">
@@ -341,7 +341,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <property name="text">
-          <string>Wählen Sie die Sampling Frequenz (Hz):</string>
+          <string>Select Sampling Frequency (Hz):</string>
          </property>
         </widget>
         <widget class="QLabel" name="status_neue_mess">
@@ -438,7 +438,7 @@ QPushButton:hover {
 }</string>
          </property>
          <property name="text">
-          <string>neue Messung</string>
+          <string>New Measurement</string>
          </property>
          <property name="autoDefault">
           <bool>false</bool>
@@ -494,7 +494,7 @@ QPushButton:hover {
 }</string>
          </property>
          <property name="text">
-          <string>Messung Starten</string>
+          <string>Start Measurement</string>
          </property>
          <property name="autoDefault">
           <bool>false</bool>
@@ -521,7 +521,7 @@ QPushButton:hover {
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <property name="text">
-          <string>Messung Speichern?</string>
+          <string>Save Measurement?</string>
          </property>
         </widget>
         <widget class="QRadioButton" name="speichern_ja">
@@ -539,7 +539,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </font>
          </property>
          <property name="text">
-          <string>Ja,</string>
+          <string>Yes,</string>
          </property>
          <property name="iconSize">
           <size>
@@ -563,7 +563,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </font>
          </property>
          <property name="text">
-          <string>Nein, nur Anzeigen</string>
+          <string>No, display only</string>
          </property>
          <property name="iconSize">
           <size>
@@ -572,7 +572,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </size>
          </property>
         </widget>
-        <widget class="QComboBox" name="box_art">
+        <widget class="QLineEdit" name="box_art">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -584,35 +584,12 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          <property name="styleSheet">
           <string notr="true">    background-color: white;
     color: black;
-    selection-background-color: #007bff; /* Farbe beim Drüberfahren (Blau) */
-    selection-color: white;              /* Schriftfarbe beim Drüberfahren */
+    font-size: 12pt;
 </string>
          </property>
-         <item>
-          <property name="text">
-           <string>Bitte Wählen</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Test</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Athlet_1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Athlet_2</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Athlet_3</string>
-          </property>
-         </item>
+         <property name="placeholderText">
+          <string>e.g. S_01</string>
+         </property>
         </widget>
         <widget class="QComboBox" name="box_ver_nr">
          <property name="geometry">
@@ -632,7 +609,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <item>
           <property name="text">
-           <string>Bitte Wählen</string>
+           <string>Please Select</string>
           </property>
          </item>
          <item>
@@ -685,6 +662,56 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
            <string>10</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>11</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>12</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>13</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>14</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>15</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>17</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>18</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>19</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>20</string>
+          </property>
+         </item>
         </widget>
         <widget class="QLabel" name="label_ver_nr">
          <property name="geometry">
@@ -706,7 +733,7 @@ color: #333333; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
 </string>
          </property>
          <property name="text">
-          <string>Versuch Nr.:</string>
+          <string>Trial No.:</string>
          </property>
         </widget>
         <widget class="QLabel" name="label_art">
@@ -729,7 +756,7 @@ color: #333333; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
 </string>
          </property>
          <property name="text">
-          <string>Art:</string>
+          <string>Athlete ID:</string>
          </property>
         </widget>
         <widget class="QLabel" name="status_speichern">
@@ -778,7 +805,7 @@ color: #333333; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <property name="text">
-          <string>Wählen Sie die Art der Triggerung:</string>
+          <string>Select Trigger Type:</string>
          </property>
         </widget>
         <widget class="QFrame" name="signal_frame">
@@ -847,7 +874,7 @@ QPushButton:hover {
 }</string>
          </property>
          <property name="text">
-          <string>Auto Zero Auslösen</string>
+          <string>Trigger Auto Zero</string>
          </property>
          <property name="autoDefault">
           <bool>false</bool>
@@ -899,7 +926,7 @@ QPushButton:hover {
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
          </property>
          <property name="text">
-          <string>Vor der messung Auto Zero auslösen?</string>
+          <string>Trigger Auto Zero before measurement?</string>
          </property>
         </widget>
         <widget class="QRadioButton" name="auto_zero_ja">
@@ -917,7 +944,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </font>
          </property>
          <property name="text">
-          <string>Ja</string>
+          <string>Yes</string>
          </property>
          <property name="iconSize">
           <size>
@@ -941,7 +968,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </font>
          </property>
          <property name="text">
-          <string>Nein</string>
+          <string>No</string>
          </property>
          <property name="iconSize">
           <size>
@@ -1005,7 +1032,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
       </widget>
       <widget class="QWidget" name="Auswertung">
        <attribute name="title">
-        <string>Auswertung</string>
+        <string>Analysis</string>
        </attribute>
        <widget class="QTabWidget" name="tabWidget_2">
         <property name="geometry">
@@ -1028,7 +1055,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
         </property>
         <widget class="QWidget" name="Kraft">
          <attribute name="title">
-          <string>Kraftdaten (N)</string>
+          <string>Force Data (N)</string>
          </attribute>
          <widget class="QLabel" name="label_kraftplots">
           <property name="geometry">
@@ -1051,7 +1078,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </property>
           <property name="text">
-           <string>Kraftplots und ausgewählte Parameter</string>
+           <string>Force plots and selected parameters</string>
           </property>
          </widget>
          <widget class="QWidget" name="plot_links_kraft" native="true">
@@ -1122,17 +1149,17 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </row>
           <row>
            <property name="text">
-            <string>linke Hand</string>
+            <string>Left Hand</string>
            </property>
           </row>
           <row>
            <property name="text">
-            <string>rechte Hand</string>
+            <string>Right Hand</string>
            </property>
           </row>
           <column>
            <property name="text">
-            <string>Kraft (N)</string>
+            <string>Force (N)</string>
            </property>
           </column>
           <column>
@@ -1182,7 +1209,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
         </widget>
         <widget class="QWidget" name="Momente">
          <attribute name="title">
-          <string>Momente (Nm)</string>
+          <string>Moments (Nm)</string>
          </attribute>
          <widget class="QLabel" name="label_momentplots">
           <property name="geometry">
@@ -1205,7 +1232,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </property>
           <property name="text">
-           <string>Momentplots und ausgewählte Parameter</string>
+           <string>Moment plots and selected parameters</string>
           </property>
          </widget>
          <widget class="QWidget" name="plot_links_moment" native="true">
@@ -1276,12 +1303,12 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </row>
           <row>
            <property name="text">
-            <string>linke Hand</string>
+            <string>Left Hand</string>
            </property>
           </row>
           <row>
            <property name="text">
-            <string>rechte Hand</string>
+            <string>Right Hand</string>
            </property>
           </row>
           <column>
@@ -1336,7 +1363,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
         </widget>
         <widget class="QWidget" name="Reaktion">
          <attribute name="title">
-          <string>Reaktionszeiten (s)</string>
+          <string>Movement Times (s)</string>
          </attribute>
          <widget class="QLabel" name="label_reaktionszeit">
           <property name="geometry">
@@ -1359,7 +1386,7 @@ font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
 font-weight: bold; /* Wenn es fett gedruckt sein soll */</string>
           </property>
           <property name="text">
-           <string>Reaktionszeiten</string>
+           <string>Movement Times</string>
           </property>
          </widget>
          <widget class="QLabel" name="label_bedingung">
@@ -1382,7 +1409,7 @@ color: #000000; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
 </string>
           </property>
           <property name="text">
-           <string>Bedingung bei Messung:</string>
+           <string>Measurement Condition:</string>
           </property>
          </widget>
          <widget class="QLabel" name="par_bedingung">
@@ -1434,12 +1461,12 @@ color: #000000; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
           </attribute>
           <row>
            <property name="text">
-            <string>linke Hand</string>
+            <string>Left Hand</string>
            </property>
           </row>
           <row>
            <property name="text">
-            <string>rechte Hand</string>
+            <string>Right Hand</string>
            </property>
           </row>
           <column>
@@ -1480,17 +1507,17 @@ color: #000000; /* Ein dunkles Grau/Schwarz für die Lesbarkeit */
           </attribute>
           <row>
            <property name="text">
-            <string>Durchschnitt von  li. und re. </string>
+            <string>Average of L and R</string>
            </property>
           </row>
           <row>
            <property name="text">
-            <string>Unterschied von li. und re.</string>
+            <string>Difference of L and R</string>
            </property>
           </row>
           <column>
            <property name="text">
-            <string>Wert (s)</string>
+            <string>Value (s)</string>
            </property>
            <property name="font">
             <font>
