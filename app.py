@@ -95,17 +95,28 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         self.signal_frame.setStyleSheet("background-color: transparent;")
         self.signal_frame.lower()
 
+        # Create label for trigger text ("GO!", "Recording...")
+        self.signal_label = QtWidgets.QLabel("", self.signal_frame)
+        self.signal_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.signal_label.setStyleSheet("color: white; font-size: 72pt; font-weight: bold; background-color: transparent;")
+        signal_layout = QtWidgets.QVBoxLayout(self.signal_frame)
+        signal_layout.addWidget(self.signal_label)
+        signal_layout.setContentsMargins(0, 0, 0, 0)
+
         ### Prepare plotting
         # Create plot widgets
         self.pw_links_kraft = pg.PlotWidget()
         self.pw_rechts_kraft = pg.PlotWidget()
         self.pw_links_moment = pg.PlotWidget()
         self.pw_rechts_moment = pg.PlotWidget()
+        self.pw_links_cop = pg.PlotWidget()
+        self.pw_rechts_cop = pg.PlotWidget()
 
         # List for easier configuration in loops
         self.all_plots = [
-            self.pw_links_kraft, self.pw_rechts_kraft, 
-            self.pw_links_moment, self.pw_rechts_moment
+            self.pw_links_kraft, self.pw_rechts_kraft,
+            self.pw_links_moment, self.pw_rechts_moment,
+            self.pw_links_cop, self.pw_rechts_cop
         ]
 
         # Embed the plot widgets into the Designer layouts
@@ -113,6 +124,8 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         QtWidgets.QVBoxLayout(self.plot_rechts_kraft).addWidget(self.pw_rechts_kraft)
         QtWidgets.QVBoxLayout(self.plot_links_moment).addWidget(self.pw_links_moment)
         QtWidgets.QVBoxLayout(self.plot_rechts_moment).addWidget(self.pw_rechts_moment)
+        QtWidgets.QVBoxLayout(self.plot_links_cop).addWidget(self.pw_links_cop)
+        QtWidgets.QVBoxLayout(self.plot_rechts_cop).addWidget(self.pw_rechts_cop)
 
         # Common appearance for all plots (black axes, white background)
         label_style = {'color': '#000', 'font-size': '12pt'}
@@ -144,6 +157,32 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
 
         self.pw_rechts_moment.setLabel('left', 'Moment', units='Nm', **label_style)
         self.pw_rechts_moment.setTitle("Right Hand - Moment", color="k", size="12pt")
+
+        # --- CoP ---
+        # CoP plots show trajectory (CoP_x vs CoP_y), not time series
+        self.pw_links_cop.setLabel('left', 'CoP_y', units='mm', **label_style)
+        self.pw_links_cop.setLabel('bottom', 'CoP_x', units='mm', **label_style)
+        self.pw_links_cop.setTitle("Left Hand - CoP Trajectory", color="k", size="12pt")
+
+        self.pw_rechts_cop.setLabel('left', 'CoP_y', units='mm', **label_style)
+        self.pw_rechts_cop.setLabel('bottom', 'CoP_x', units='mm', **label_style)
+        self.pw_rechts_cop.setTitle("Right Hand - CoP Trajectory", color="k", size="12pt")
+
+        ### Reconfigure CoP table for expanded metrics (overrides UI file settings)
+        self.tabelle_cop.clear()
+        self.tabelle_cop.setRowCount(7)
+        self.tabelle_cop.setColumnCount(3)
+        self.tabelle_cop.setHorizontalHeaderLabels(["Left (mm)", "Right (mm)", "AI (%)"])
+        metric_labels = ["Std Dev X", "Std Dev Y", "Mean X", "Mean Y",
+                         "Range X", "Range Y", "Ellipse Area"]
+        self.tabelle_cop.setVerticalHeaderLabels(metric_labels)
+        # Make headers bold
+        for i in range(3):
+            item = self.tabelle_cop.horizontalHeaderItem(i)
+            if item:
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
 
         ### Connect buttons to functions
         self.btn_start_messung.clicked.connect(self.starte_messung)
@@ -257,8 +296,8 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         # Make white
         self.signal_frame.setStyleSheet("background-color: white; border: none;")
 
-        ### Generate random time between 1500ms and 3500ms
-        zufall_ms = random.randint(1500, 3500)
+        ### Generate random time between 2000ms and 6000ms (variable to prevent anticipation)
+        zufall_ms = random.randint(2000, 6000)
 
         # Trigger the actual stimulus after this time
         QTimer.singleShot(zufall_ms, self.trigger_ausloesen)
@@ -272,12 +311,20 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
 
         # Display the actual trigger
         if self.visuell.isChecked():
-            self.signal_frame.setStyleSheet("background-color: green;")
+            # Visual: show green screen with "GO!" for 1.5s, then switch to "Recording..."
+            self.signal_frame.setStyleSheet("background-color: green; border: none;")
+            self.signal_label.setText("GO!")
+            self.signal_label.setStyleSheet("color: white; font-size: 72pt; font-weight: bold; background-color: transparent;")
             print("VISUAL STIMULUS!")
+            # Schedule switch to "Recording..." after 1.5 seconds
+            QTimer.singleShot(1500, self.switch_to_recording)
         else:
-            # self.signal_frame.setStyleSheet("background-color: blue;")
+            # Acoustic: play beep, then show "Recording..." immediately
             self.play_sound(self.sound)
             print("ACOUSTIC STIMULUS!")
+            self.signal_frame.setStyleSheet("background-color: #808080; border: none;")
+            self.signal_label.setText("Recording...")
+            self.signal_label.setStyleSheet("color: white; font-size: 48pt; font-weight: bold; background-color: transparent;")
 
         # IMPORTANT: Force screen redraw NOW
         QtWidgets.QApplication.processEvents()
@@ -298,6 +345,13 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         # End measurement (display plot and reset frame)
         self.messung_beenden(mess_daten_phys)
 
+    """--------------------------------------------------------------------------------------------------------------------------------------------------------------"""
+    def switch_to_recording(self):
+        """Switches the visual trigger from 'GO!' to 'Recording...' display"""
+        self.signal_frame.setStyleSheet("background-color: #808080; border: none;")
+        self.signal_label.setText("Recording...")
+        self.signal_label.setStyleSheet("color: white; font-size: 48pt; font-weight: bold; background-color: transparent;")
+        QtWidgets.QApplication.processEvents()
     """--------------------------------------------------------------------------------------------------------------------------------------------------------------"""
     def measurement(self, hat_links, hat_rechts, duration_sec, num_channels = 6, sampling_rate = 1000.0):
         """
@@ -425,35 +479,108 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         # 2. BUILD THREE-LINE HEADER
         # =========================================================================
         # Row 1: Metadata column labels
-        meta_names = "Athlete_ID,Trial_Number,Duration,Sampling_Frequency,Trigger_Type,Auto-Zero_Before_Measurement,Movement_Time_Left(s),Movement_Time_Right(s)"
+        meta_names = ("Athlete_ID,Trial_Number,Duration,Sampling_Frequency,Trigger_Type,"
+                      "Auto-Zero_Before_Measurement,Movement_Time_Left(s),Movement_Time_Right(s),"
+                      "L_CoP_StdDev_X(mm),L_CoP_StdDev_Y(mm),L_CoP_Mean_X(mm),L_CoP_Mean_Y(mm),"
+                      "L_CoP_Range_X(mm),L_CoP_Range_Y(mm),L_CoP_Ellipse95(mm2),"
+                      "R_CoP_StdDev_X(mm),R_CoP_StdDev_Y(mm),R_CoP_Mean_X(mm),R_CoP_Mean_Y(mm),"
+                      "R_CoP_Range_X(mm),R_CoP_Range_Y(mm),R_CoP_Ellipse95(mm2)")
 
-        # Row 2: Actual values (comma-separated)
-        meta_values = f"{messart},{versuchsnummer},{dauer},{sampling_frequenz},{trigger_art},{auto_zero_status},{val_links},{val_rechts}"
+        # Row 2: Actual values (comma-separated) — CoP summary metrics added after save calc
+        meta_values_base = f"{messart},{versuchsnummer},{dauer},{sampling_frequenz},{trigger_art},{auto_zero_status},{val_links},{val_rechts}"
         
-        # Row 3: Column names for the 13 data channels
+        # Row 3: Column names for the 13 data channels + 4 CoP columns
         header_list = [
-            "Time", 
+            "Time",
             "L_Fx", "L_Fy", "L_Fz", "L_Mx", "L_My", "L_Mz",
-            "R_Fx", "R_Fy", "R_Fz", "R_Mx", "R_My", "R_Mz"
+            "R_Fx", "R_Fy", "R_Fz", "R_Mx", "R_My", "R_Mz",
+            "L_CoP_x_mm", "L_CoP_y_mm", "R_CoP_x_mm", "R_CoP_y_mm"
         ]
         data_columns = ",".join(header_list)
+
+        # NOTE: kompletter_header is assembled after CoP summary metrics are calculated below
+
+        # =========================================================================
+        # 3. CALCULATE CoP PER SAMPLE FOR EXPORT
+        # =========================================================================
+        # CoP_x = -My / Fz, CoP_y = Mx / Fz (Bertec convention), converted to mm
+        fz_threshold = 15.0  # N — same as movement time detection
+        data_slice = data_phys[:frames_written, :]
+
+        # Left hand: Fz=col3, Mx=col4, My=col5
+        l_fz_csv = data_slice[:, 3]
+        l_mx_csv = data_slice[:, 4]
+        l_my_csv = data_slice[:, 5]
+        l_valid_csv = np.abs(l_fz_csv) > fz_threshold
+        l_cop_x_csv = np.full(frames_written, np.nan)
+        l_cop_y_csv = np.full(frames_written, np.nan)
+        l_cop_x_csv[l_valid_csv] = (-l_my_csv[l_valid_csv] / l_fz_csv[l_valid_csv]) * 1000.0
+        l_cop_y_csv[l_valid_csv] = ( l_mx_csv[l_valid_csv] / l_fz_csv[l_valid_csv]) * 1000.0
+
+        # Right hand: Fz=col9, Mx=col10, My=col11
+        r_fz_csv = data_slice[:, 9]
+        r_mx_csv = data_slice[:, 10]
+        r_my_csv = data_slice[:, 11]
+        r_valid_csv = np.abs(r_fz_csv) > fz_threshold
+        r_cop_x_csv = np.full(frames_written, np.nan)
+        r_cop_y_csv = np.full(frames_written, np.nan)
+        r_cop_x_csv[r_valid_csv] = (-r_my_csv[r_valid_csv] / r_fz_csv[r_valid_csv]) * 1000.0
+        r_cop_y_csv[r_valid_csv] = ( r_mx_csv[r_valid_csv] / r_fz_csv[r_valid_csv]) * 1000.0
+
+        # Append CoP columns to data for export
+        cop_columns = np.column_stack([l_cop_x_csv, l_cop_y_csv, r_cop_x_csv, r_cop_y_csv])
+        data_export = np.hstack([data_slice, cop_columns])
+
+        # =========================================================================
+        # 4. CALCULATE CoP SUMMARY METRICS FOR HEADER
+        # =========================================================================
+        l_mask_csv = ~np.isnan(l_cop_x_csv)
+        r_mask_csv = ~np.isnan(r_cop_x_csv)
+
+        def _cop_summary(cop_x, cop_y, mask):
+            """Returns (std_x, std_y, mean_x, mean_y, range_x, range_y, ellipse95)"""
+            if np.any(mask):
+                sx = np.std(cop_x[mask])
+                sy = np.std(cop_y[mask])
+                mx = np.mean(cop_x[mask])
+                my = np.mean(cop_y[mask])
+                rx = np.max(cop_x[mask]) - np.min(cop_x[mask])
+                ry = np.max(cop_y[mask]) - np.min(cop_y[mask])
+                if np.sum(mask) >= 3:
+                    cov = np.cov(cop_x[mask], cop_y[mask])
+                    eigvals = np.linalg.eigvalsh(cov)
+                    ell = np.pi * 5.991 * np.sqrt(np.abs(eigvals[0] * eigvals[1]))
+                else:
+                    ell = np.nan
+                return sx, sy, mx, my, rx, ry, ell
+            return (np.nan,) * 7
+
+        l_sum = _cop_summary(l_cop_x_csv, l_cop_y_csv, l_mask_csv)
+        r_sum = _cop_summary(r_cop_x_csv, r_cop_y_csv, r_mask_csv)
+
+        # Format summary values for CSV header
+        cop_summary_vals = ",".join(
+            [f"{v:.3f}" if not np.isnan(v) else "NaN" for v in l_sum] +
+            [f"{v:.3f}" if not np.isnan(v) else "NaN" for v in r_sum]
+        )
+        meta_values = f"{meta_values_base},{cop_summary_vals}"
 
         # Combine the three rows (separated by newlines \n)
         kompletter_header = f"{meta_names}\n{meta_values}\n{data_columns}"
 
         # =========================================================================
-        # 3. FORMATTING AND SAVING
+        # 5. FORMATTING AND SAVING
         # =========================================================================
-        # '%.4f' for time, '%.2f' for all subsequent forces and moments
-        fmt = ['%.4f'] + ['%.2f'] * (data_phys.shape[1] - 1)
-        
-        # We save only the actually written rows (frames_written)
+        # '%.4f' for time, '%.2f' for forces/moments, '%.3f' for CoP (mm)
+        fmt = ['%.4f'] + ['%.2f'] * 12 + ['%.3f'] * 4
+
+        # Save the data with CoP columns included
         np.savetxt(
-            dateiname, 
-            data_phys[:frames_written, :], 
-            delimiter=",", 
-            header=kompletter_header, 
-            comments='', 
+            dateiname,
+            data_export,
+            delimiter=",",
+            header=kompletter_header,
+            comments='',
             fmt=fmt
         )
         print("CSV file with structured metadata header saved successfully!")
@@ -548,6 +675,7 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
                 self.par_bedingung.setStyleSheet(style_grün)
 
             # Reset visual feedback
+            self.signal_label.setText("")
             self.signal_frame.setStyleSheet("background-color: transparent;")
             self.signal_frame.lower()
 
@@ -656,6 +784,147 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
             self.tabelle_reaktion_durchschnitt.setItem(0, 0, QtWidgets.QTableWidgetItem(text_durchschnitt))
             self.tabelle_reaktion_durchschnitt.setItem(1, 0, QtWidgets.QTableWidgetItem(text_differenz))
 
+            ### --- CALCULATE AND PLOT CoP ---
+            # CoP formulas for Bertec force plates:
+            # CoP_x = -My / Fz  (meters), CoP_y = Mx / Fz  (meters)
+            # Convert to mm by multiplying by 1000
+            # Use Fz threshold to avoid division by near-zero values
+            fz_threshold = 15.0  # N — same threshold as movement time detection
+
+            # Left hand: Fz=col3, Mx=col4, My=col5
+            l_fz = data_phys[:, 3]
+            l_mx = data_phys[:, 4]
+            l_my = data_phys[:, 5]
+            l_valid = np.abs(l_fz) > fz_threshold
+            l_cop_x = np.full(len(l_fz), np.nan)
+            l_cop_y = np.full(len(l_fz), np.nan)
+            l_cop_x[l_valid] = (-l_my[l_valid] / l_fz[l_valid]) * 1000.0  # mm
+            l_cop_y[l_valid] = ( l_mx[l_valid] / l_fz[l_valid]) * 1000.0  # mm
+
+            # Right hand: Fz=col9, Mx=col10, My=col11
+            r_fz = data_phys[:, 9]
+            r_mx = data_phys[:, 10]
+            r_my = data_phys[:, 11]
+            r_valid = np.abs(r_fz) > fz_threshold
+            r_cop_x = np.full(len(r_fz), np.nan)
+            r_cop_y = np.full(len(r_fz), np.nan)
+            r_cop_x[r_valid] = (-r_my[r_valid] / r_fz[r_valid]) * 1000.0  # mm
+            r_cop_y[r_valid] = ( r_mx[r_valid] / r_fz[r_valid]) * 1000.0  # mm
+
+            # Clear previous CoP plots
+            self.pw_links_cop.clear()
+            self.pw_rechts_cop.clear()
+
+            # Plot CoP trajectories (CoP_x vs CoP_y, not vs time)
+            pen_cop = pg.mkPen(color='#1f77b4', width=2)
+            # Filter out NaN for plotting
+            l_mask = ~np.isnan(l_cop_x)
+            r_mask = ~np.isnan(r_cop_x)
+
+            if np.any(l_mask):
+                self.pw_links_cop.plot(l_cop_x[l_mask], l_cop_y[l_mask], pen=pen_cop, name="CoP")
+            if np.any(r_mask):
+                self.pw_rechts_cop.plot(r_cop_x[r_mask], r_cop_y[r_mask], pen=pen_cop, name="CoP")
+
+            # Set equal aspect ratio for trajectory plots
+            self.pw_links_cop.setAspectLocked(True)
+            self.pw_rechts_cop.setAspectLocked(True)
+            self.pw_links_cop.autoRange()
+            self.pw_rechts_cop.autoRange()
+
+            ### --- FILL CoP TABLE (7 rows × 3 columns) ---
+            # Rows: Std Dev X, Std Dev Y, Mean X, Mean Y, Range X, Range Y, Ellipse Area
+            # Columns: Left (mm), Right (mm), AI (%)
+
+            # --- Left hand metrics ---
+            if np.any(l_mask):
+                l_std_x = np.std(l_cop_x[l_mask])
+                l_std_y = np.std(l_cop_y[l_mask])
+                l_mean_x = np.mean(l_cop_x[l_mask])
+                l_mean_y = np.mean(l_cop_y[l_mask])
+                l_range_x = np.max(l_cop_x[l_mask]) - np.min(l_cop_x[l_mask])
+                l_range_y = np.max(l_cop_y[l_mask]) - np.min(l_cop_y[l_mask])
+                # 95% Confidence Ellipse Area (needs ≥3 valid points)
+                if np.sum(l_mask) >= 3:
+                    l_cov = np.cov(l_cop_x[l_mask], l_cop_y[l_mask])
+                    l_eigvals = np.linalg.eigvalsh(l_cov)
+                    l_ellipse = np.pi * 5.991 * np.sqrt(np.abs(l_eigvals[0] * l_eigvals[1]))
+                else:
+                    l_ellipse = None
+            else:
+                l_std_x = l_std_y = l_mean_x = l_mean_y = None
+                l_range_x = l_range_y = l_ellipse = None
+
+            # --- Right hand metrics ---
+            if np.any(r_mask):
+                r_std_x = np.std(r_cop_x[r_mask])
+                r_std_y = np.std(r_cop_y[r_mask])
+                r_mean_x = np.mean(r_cop_x[r_mask])
+                r_mean_y = np.mean(r_cop_y[r_mask])
+                r_range_x = np.max(r_cop_x[r_mask]) - np.min(r_cop_x[r_mask])
+                r_range_y = np.max(r_cop_y[r_mask]) - np.min(r_cop_y[r_mask])
+                # 95% Confidence Ellipse Area (needs ≥3 valid points)
+                if np.sum(r_mask) >= 3:
+                    r_cov = np.cov(r_cop_x[r_mask], r_cop_y[r_mask])
+                    r_eigvals = np.linalg.eigvalsh(r_cov)
+                    r_ellipse = np.pi * 5.991 * np.sqrt(np.abs(r_eigvals[0] * r_eigvals[1]))
+                else:
+                    r_ellipse = None
+            else:
+                r_std_x = r_std_y = r_mean_x = r_mean_y = None
+                r_range_x = r_range_y = r_ellipse = None
+
+            # Helper: format value or "N/A"
+            def fmt(val, decimals=2):
+                return f"{val:.{decimals}f}" if val is not None else "N/A"
+
+            # Helper: Asymmetry Index (L - R) / (L + R) * 100 for positive metrics
+            def ai_pct(l_val, r_val):
+                if l_val is not None and r_val is not None and (l_val + r_val) > 0:
+                    return f"{((l_val - r_val) / (l_val + r_val)) * 100.0:.1f}"
+                return "N/A"
+
+            # Helper: Difference L - R in mm (for Mean, where AI formula doesn't apply)
+            def diff_mm(l_val, r_val):
+                if l_val is not None and r_val is not None:
+                    return f"{(l_val - r_val):.2f}"
+                return "N/A"
+
+            # Row 0: Std Dev X
+            self.tabelle_cop.setItem(0, 0, QtWidgets.QTableWidgetItem(fmt(l_std_x)))
+            self.tabelle_cop.setItem(0, 1, QtWidgets.QTableWidgetItem(fmt(r_std_x)))
+            self.tabelle_cop.setItem(0, 2, QtWidgets.QTableWidgetItem(ai_pct(l_std_x, r_std_x)))
+
+            # Row 1: Std Dev Y
+            self.tabelle_cop.setItem(1, 0, QtWidgets.QTableWidgetItem(fmt(l_std_y)))
+            self.tabelle_cop.setItem(1, 1, QtWidgets.QTableWidgetItem(fmt(r_std_y)))
+            self.tabelle_cop.setItem(1, 2, QtWidgets.QTableWidgetItem(ai_pct(l_std_y, r_std_y)))
+
+            # Row 2: Mean X
+            self.tabelle_cop.setItem(2, 0, QtWidgets.QTableWidgetItem(fmt(l_mean_x)))
+            self.tabelle_cop.setItem(2, 1, QtWidgets.QTableWidgetItem(fmt(r_mean_x)))
+            self.tabelle_cop.setItem(2, 2, QtWidgets.QTableWidgetItem(diff_mm(l_mean_x, r_mean_x)))
+
+            # Row 3: Mean Y
+            self.tabelle_cop.setItem(3, 0, QtWidgets.QTableWidgetItem(fmt(l_mean_y)))
+            self.tabelle_cop.setItem(3, 1, QtWidgets.QTableWidgetItem(fmt(r_mean_y)))
+            self.tabelle_cop.setItem(3, 2, QtWidgets.QTableWidgetItem(diff_mm(l_mean_y, r_mean_y)))
+
+            # Row 4: Range X
+            self.tabelle_cop.setItem(4, 0, QtWidgets.QTableWidgetItem(fmt(l_range_x)))
+            self.tabelle_cop.setItem(4, 1, QtWidgets.QTableWidgetItem(fmt(r_range_x)))
+            self.tabelle_cop.setItem(4, 2, QtWidgets.QTableWidgetItem(ai_pct(l_range_x, r_range_x)))
+
+            # Row 5: Range Y
+            self.tabelle_cop.setItem(5, 0, QtWidgets.QTableWidgetItem(fmt(l_range_y)))
+            self.tabelle_cop.setItem(5, 1, QtWidgets.QTableWidgetItem(fmt(r_range_y)))
+            self.tabelle_cop.setItem(5, 2, QtWidgets.QTableWidgetItem(ai_pct(l_range_y, r_range_y)))
+
+            # Row 6: 95% Confidence Ellipse Area (mm²)
+            self.tabelle_cop.setItem(6, 0, QtWidgets.QTableWidgetItem(fmt(l_ellipse)))
+            self.tabelle_cop.setItem(6, 1, QtWidgets.QTableWidgetItem(fmt(r_ellipse)))
+            self.tabelle_cop.setItem(6, 2, QtWidgets.QTableWidgetItem(ai_pct(l_ellipse, r_ellipse)))
+
 
             # Lock UI for changes until "New Measurement" is pressed
             self.set_ui_enabled(False)
@@ -758,9 +1027,10 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
         
         ### Clear table contents (without deleting the headers)
         tabellen_liste = [
-            self.tabelle_kraft, 
-            self.tabelle_moment, 
-            self.tabelle_reaktion_li_re, 
+            self.tabelle_kraft,
+            self.tabelle_moment,
+            self.tabelle_cop,
+            self.tabelle_reaktion_li_re,
             self.tabelle_reaktion_durchschnitt
         ]
 
@@ -769,6 +1039,11 @@ class SnapCoach_UI(QtWidgets.QMainWindow):
             for row in range(1, tabelle.rowCount()):  # Starts at 1 instead of 0
                 for col in range(tabelle.columnCount()):
                     tabelle.setItem(row, col, QtWidgets.QTableWidgetItem(""))
+
+        # CoP table: Clear from row 0 (uses Qt vertical/horizontal headers, not item rows)
+        for row in range(self.tabelle_cop.rowCount()):
+            for col in range(self.tabelle_cop.columnCount()):
+                self.tabelle_cop.setItem(row, col, QtWidgets.QTableWidgetItem(""))
 
         # Reaction tables: Clear completely starting from row 0 (index 0)
         for tabelle in [self.tabelle_reaktion_li_re, self.tabelle_reaktion_durchschnitt]:
